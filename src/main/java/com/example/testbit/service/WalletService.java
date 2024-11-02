@@ -4,6 +4,7 @@ import com.example.testbit.repository.WalletRepository;
 import jakarta.websocket.SendResult;
 import org.bitcoinj.core.*;
 import org.bitcoinj.params.TestNet3Params;
+import org.bitcoinj.script.Script;
 import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.UnreadableWalletException;
@@ -34,17 +35,20 @@ public class WalletService {
 
     public Wallet createWallet(String userId) throws IOException {
         NetworkParameters params = TestNet3Params.get();
-        Wallet wallet = Wallet.createBasic(params);
+        Wallet wallet = Wallet.createDeterministic(params, Script.ScriptType.P2PKH);
 
         // ذخیره‌سازی کیف‌پول در فایل
         File walletFile = new File(userId + "_wallet.wallet");
         wallet.saveToFile(walletFile);
 
+        Address address = wallet.currentReceiveAddress();
+        System.out.println("آدرس کیف پول: " + address);
         // ذخیره اطلاعات کیف‌پول در دیتابیس
         WalletEntity walletEntity = new WalletEntity();
         walletEntity.setUserId(userId);
         walletEntity.setFilePath(walletFile.getPath());
         walletEntity.setBalance(wallet.getBalance());
+        walletEntity.setAddress(address.toString());
         walletRepository.save(walletEntity);
 
         return wallet;
@@ -55,6 +59,10 @@ public class WalletService {
         WalletEntity walletEntity = walletRepository.findByUserId(userId);
         if (walletEntity != null) {
             Wallet wallet = Wallet.loadFromFile(new File(walletEntity.getFilePath()));
+            addWalletListener(wallet, userId);
+            // همگام‌سازی کیف‌پول با بلاک‌چین
+            peerGroup.addWallet(wallet);
+            peerGroup.downloadBlockChain();
             return wallet.getBalance();
         }
         return Coin.ZERO; // اگر کیف‌پول وجود نداشته باشد
@@ -97,6 +105,25 @@ public class WalletService {
         throw new Exception("Transaction not found.");
     }
 
+    private void addWalletListener(Wallet wallet, String userId) {
+        wallet.addCoinsReceivedEventListener((w, tx, prevBalance, newBalance) -> {
+            System.out.println("Received transaction for wallet: " + tx.getTxId());
+            updateBalance(userId, newBalance);
+        });
+
+        wallet.addCoinsSentEventListener((w, tx, prevBalance, newBalance) -> {
+            System.out.println("Sent transaction from wallet: " + tx.getTxId());
+            updateBalance(userId, newBalance);
+        });
+    }
+
+    private void updateBalance(String userId, Coin newBalance) {
+        WalletEntity walletEntity = walletRepository.findByUserId(userId);
+        if (walletEntity != null) {
+            walletEntity.setBalance(newBalance);
+            walletRepository.save(walletEntity);
+        }
+    }
 
 }
 

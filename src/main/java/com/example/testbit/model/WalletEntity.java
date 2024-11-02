@@ -20,6 +20,7 @@ public class WalletEntity {
     private String userId;
     private String filePath;
     private Coin balance; // ذخیره بالانس
+    private String address;
 
     // Getters و Setters
 }

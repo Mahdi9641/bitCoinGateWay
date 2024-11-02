@@ -1,5 +1,6 @@
 package com.example.testbit.controller;
 
+import com.example.testbit.model.WalletDTO;
 import com.example.testbit.service.WalletService;
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.Transaction;
@@ -20,8 +21,14 @@ public class WalletController {
     }
 
     @PostMapping("/create")
-    public Wallet createWallet(@RequestParam String userId) throws IOException {
-        return walletService.createWallet(userId);
+    public WalletDTO createWallet(@RequestParam String userId) throws IOException {
+        Wallet wallet = walletService.createWallet(userId);
+
+        WalletDTO walletDTO = new WalletDTO();
+        walletDTO.setBalance(wallet.getBalance().toFriendlyString());
+        walletDTO.setFilePath(userId + "_wallet.wallet");
+        walletDTO.setUserId(userId);
+        return walletDTO;
     }
 
     @GetMapping("/{userId}/balance")
