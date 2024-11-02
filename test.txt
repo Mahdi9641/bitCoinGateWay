@@ -1,0 +1,35 @@
+C:\Users\m_khodam>curl http://127.0.0.1:5000/create_testnet_wallet
+{
+  "address": "mpxuWn42hwe7UkX4aU8QybWuJxvHGFFgJi",
+  "private_key": "e74e68ea509d6a1bb1b1d6bf52ce8ab3144e0008d434f2b20fdcea1a75c02e0a",
+  "public_key": "0252bc78fcd01e6c883c2c3f590767ca505e57839393d59e9b94609f74da2b9cc2",
+  "wallet_name": "TestnetWallet4"
+}
+
+C:\Users\m_khodam>curl https://api.blockcypher.com/v1/btc/test3/addrs/mpxuWn42hwe7UkX4aU8QybWuJxvHGFFgJi
+{
+  "address": "mpxuWn42hwe7UkX4aU8QybWuJxvHGFFgJi",
+  "total_received": 0,
+  "total_sent": 0,
+  "balance": 0,
+  "unconfirmed_balance": 24888,
+  "final_balance": 24888,
+  "n_tx": 0,
+  "unconfirmed_n_tx": 1,
+  "final_n_tx": 1,
+  "unconfirmed_txrefs": [
+    {
+      "address": "mpxuWn42hwe7UkX4aU8QybWuJxvHGFFgJi",
+      "tx_hash": "cdfb3b52aa9d833e519fef4d15a167802e40d5be5e1622aedd4c739e2abbc25b",
+      "tx_input_n": -1,
+      "tx_output_n": 0,
+      "value": 24888,
+      "spent": false,
+      "received": "2024-11-02T13:56:05.354Z",
+      "confirmations": 0,
+      "double_spend": false,
+      "preference": "low"
+    }
+  ],
+  "tx_url": "https://api.blockcypher.com/v1/btc/test3/txs/"
+}
